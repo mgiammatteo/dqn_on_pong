@@ -63,7 +63,9 @@ class Agent():
             state (array_like): current state
             eps (float): epsilon, for epsilon-greedy action selection
         """
-        state = torch.from_numpy(state).float().unsqueeze(0).to(device)
+        state = np.reshape(state, (1, 4, 84, 84))
+        state = torch.from_numpy(state).float().to(device)
+        
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
@@ -86,10 +88,10 @@ class Agent():
         states, actions, rewards, next_states, dones = experiences
         
         # we need to do this as when we process a batch of size=sz, we need 
-        # the states to be of size [sz, 1, 84, 84] on the input end to the QNetwork
-        states = states.unsqueeze(1)
-        next_states = next_states.unsqueeze(1)
-                
+        # the states to be of size [sz, 4, 84, 84] on the input end to the QNetwork
+        states = states.reshape([BATCH_SIZE, 4, 84,84])
+        next_states = next_states.reshape([BATCH_SIZE, 4, 84,84])
+        
         # Get max predicted Q values (for next states) from target model
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
         # Compute Q targets for current states 
